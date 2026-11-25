@@ -160,6 +160,7 @@ class EdgeTTSEngine(BaseTTSEngine):
 
         except Exception as e:
             logger.error(f"Edge TTS playback error: {e}", exc_info=True)
+            raise
         finally:
             if tmp_path and os.path.exists(tmp_path):
                 try:

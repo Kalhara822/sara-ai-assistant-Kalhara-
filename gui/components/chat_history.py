@@ -38,6 +38,8 @@ class ChatHistoryView(ctk.CTkScrollableFrame):
 
         bubble_bg = Theme.BLUE_ACCENT if is_user else Theme.CARD_BG
         text_color = Theme.TEXT_MAIN
+        border_w = 0 if is_user else 1
+        border_col = Theme.CYAN_ACCENT if not is_user else Theme.CARD_BG
 
         # Anchor wrapper to align bubble left or right
         anchor_frame = ctk.CTkFrame(msg_frame, fg_color="transparent")
@@ -48,8 +50,8 @@ class ChatHistoryView(ctk.CTkScrollableFrame):
             anchor_frame,
             fg_color=bubble_bg,
             corner_radius=Theme.CORNER_RADIUS,
-            border_width=1,
-            border_color=Theme.CYAN_ACCENT if not is_user else "transparent"
+            border_width=border_w,
+            border_color=border_col
         )
         if is_user:
             bubble.pack(side="right", padx=(60, 0))

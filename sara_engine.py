@@ -247,10 +247,6 @@ class SARAEngine:
 
         # 4. Handle general chat (uses Ollama for free-thinking chat)
         if intent.action == "general_chat":
-            # Fire a "thinking..." placeholder immediately so chat shows something
-            if self._on_response:
-                self._on_response("...", "")
-
             response_text = self._ai.generate_chat_response(user_input, history)
             speech_text = response_text
         else:
