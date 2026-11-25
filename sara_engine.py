@@ -12,7 +12,6 @@ import time
 from typing import Optional, Dict, Any, List, Callable
 from ai.ollama_engine import OllamaIntentEngine
 from ai.schemas import IntentResponse
-from ai.gemini_engine import GeminiAIEngine
 from commands.dispatcher import CommandDispatcher
 from database.memory_manager import MemoryManager
 from plugins.base import PluginManager
@@ -34,7 +33,6 @@ class SARAEngine:
                          text = displayed in GUI chat, speech = spoken via TTS.
         """
         self._ai = OllamaIntentEngine()
-        self._gemini = GeminiAIEngine()
         self._dispatcher = CommandDispatcher()
         self._memory = MemoryManager()
         self._plugin_manager = PluginManager()
@@ -247,17 +245,13 @@ class SARAEngine:
         intent: IntentResponse = self._ai.parse_intent(user_input, history)
         logger.info(f"Intent resolved: action='{intent.action}', app='{intent.application}', value='{intent.value}'")
 
-        # 4. Handle general chat separately (uses Gemini AI if available for intelligent free chat)
+        # 4. Handle general chat (uses Ollama for free-thinking chat)
         if intent.action == "general_chat":
             # Fire a "thinking..." placeholder immediately so chat shows something
             if self._on_response:
                 self._on_response("...", "")
 
-            if self._gemini.is_available():
-                logger.info("Routing chat response through Gemini AI...")
-                response_text = self._gemini.generate_chat_response(user_input, history)
-            else:
-                response_text = self._ai.generate_chat_response(user_input, history)
+            response_text = self._ai.generate_chat_response(user_input, history)
             speech_text = response_text
         else:
             # 5. Execute command via dispatcher
@@ -287,7 +281,6 @@ class SARAEngine:
         """Return AI engine health check for status indicator."""
         return {
             "ollama_available": self._ai.is_available(),
-            "gemini_available": self._gemini.is_available(),
             "model": self._ai._model,
             "registered_commands": len(self._dispatcher.list_registered()),
             "plugins": self._plugin_summary,

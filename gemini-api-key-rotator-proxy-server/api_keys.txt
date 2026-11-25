@@ -1,4 +1,0 @@
-# Paste your Google Gemini API keys here, one key per line.
-# Example:
-# AIzaSyA1b2c3d4e5f6g7h8i9j0
-# AIzaSyB9876543210zyxwvuts

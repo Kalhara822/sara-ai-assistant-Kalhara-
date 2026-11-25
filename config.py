@@ -65,11 +65,6 @@ class AIConfig:
     TEMPERATURE: float = 0.2              # Low temperature for strict intent parsing
     MAX_TOKENS: int = 512
 
-    # Gemini AI Cloud Chat Settings
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL: str = "gemini-2.5-flash"
-    USE_GEMINI_CHAT: bool = True          # Enable Gemini AI for free-thinking chat when API key is set
-
     SYSTEM_PROMPT_TEMPLATE: str = (
         "You are SARA — an exceptionally observant, introverted, and deeply analytical desktop AI companion.\n"
         "You overthink every problem to arrive at the single best, most calculated answer.\n"
