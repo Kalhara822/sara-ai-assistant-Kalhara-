@@ -46,22 +46,18 @@ class HeaderWidget(ctk.CTkFrame):
         )
         self.status_badge.pack(side="left")
 
-        # Voice Selector Dropdown
-        self.voice_selector = ctk.CTkOptionMenu(
+        # Voice Indicator Badge (Exclusive SARA Female Voice)
+        self.voice_badge = ctk.CTkLabel(
             self.left_frame,
-            values=["Voice: Default", "Voice: JARVIS", "Voice: Cute Female"],
-            command=self._on_voice_selected,
-            width=150,
+            text="VOICE: SARA",
+            width=100,
             height=28,
+            corner_radius=14,
             fg_color=Theme.BG_DARK,
-            button_color=Theme.SURFACE,
-            button_hover_color=Theme.ACCENT_BLUE,
             text_color=Theme.CYAN_ACCENT,
-            dropdown_fg_color=Theme.CARD_BG,
-            dropdown_text_color=Theme.TEXT_MAIN,
             font=ctk.CTkFont(family=Theme.FONT_MONO, size=11, weight="bold")
         )
-        self.voice_selector.pack(side="left", padx=(Theme.PADDING_MEDIUM, 0))
+        self.voice_badge.pack(side="left", padx=(Theme.PADDING_MEDIUM, 0))
 
         # Center Section: System Notice Banner (replaces chat system logs)
         self.center_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -98,14 +94,10 @@ class HeaderWidget(ctk.CTkFrame):
         self._is_running = True
         self._update_clock()
 
-    def _on_voice_selected(self, choice: str):
-        key = "default"
-        if "JARVIS" in choice:
-            key = "jarvis"
-        elif "Cute" in choice:
-            key = "cute"
+    def _on_voice_selected(self, choice: str = "default"):
+        """SARA operates exclusively with her dedicated female voice."""
         if self._on_voice_change:
-            self._on_voice_change(key)
+            self._on_voice_change("default")
 
     def show_system_notice(self, text: str, duration_ms: int = 6000):
         """Display system status notice/warning banner on header bar instead of chat window."""

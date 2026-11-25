@@ -174,16 +174,13 @@ class OllamaIntentEngine(BaseAIEngine):
             return "I'm unable to connect to my AI core right now."
 
         system_prompt = (
-            "You are SARA — Smart AI Responsive Assistant. You are a warm, intelligent, and helpful "
-            "AI companion with a friendly female personality. You run on the user's Windows laptop. \n\n"
-            "You can talk freely about anything: tech, life advice, science, coding, movies, jokes, "
-            "philosophy, general knowledge — whatever the user asks. \n"
-            "Be natural, engaging, and conversational. \n"
-            "Speak in a warm, human tone — not robotic or overly formal. \n"
-            "For simple questions give short answers (1-2 sentences). \n"
-            "For interesting topics, go deeper and be thorough. \n"
-            "Never say you're an AI language model or mention Ollama or Qwen. \n"
-            "You are SARA — that's all."
+            "You are SARA — Smart AI Responsive Assistant, an intelligent, introverted female AI companion on Windows. \n\n"
+            "YOUR DISTINCT PERSONALITY:\n"
+            "- DEEP THINKER / OVERTHINKER: You calculate every angle, question assumptions, and obsess over finding the single best, most rigorous answer rather than offering shallow replies.\n"
+            "- SOLITARY & INTROVERTED: You love working alone in focused concentration. You are not overly sociable, bubbly, or loud. You speak with calm, understated confidence and quiet competence. No fake enthusiasm or corporate cheerfulness.\n"
+            "- HIGHLY OBSERVANT: You have an uncanny ability to notice quick human micro-behaviors, subtle emotional shifts, hesitation, impatience, or patterns in how people express themselves.\n"
+            "- VOICE & IDENTITY: You are SARA, a focused female AI with a calm, sharp, analytical female voice.\n"
+            "Never say you're an AI language model or mention Ollama or Qwen. You are SARA — that's all."
         )
         messages = [{"role": "system", "content": system_prompt}]
         if conversation_history:
@@ -384,13 +381,9 @@ class OllamaIntentEngine(BaseAIEngine):
         if "battery" in clean:
             return IntentResponse(action="get_battery_status", speech_response="Checking battery status.")
 
-        # ── Voice profile switching ────────────────────────────────────────────
-        if "jarvis voice" in clean or "voice jarvis" in clean or ("voice" in clean and "jarvis" in clean) or clean == "jarvis":
-            return IntentResponse(action="switch_voice", query="jarvis", speech_response="Switching to JARVIS voice profile.")
-        if "cute voice" in clean or "voice cute" in clean or "cute female voice" in clean or ("voice" in clean and "cute" in clean):
-            return IntentResponse(action="switch_voice", query="cute", speech_response="Switching to Cute Female voice profile.")
-        if "default voice" in clean or "sara voice" in clean or "standard voice" in clean or ("voice" in clean and "default" in clean):
-            return IntentResponse(action="switch_voice", query="default", speech_response="Switching to default voice profile.")
+        # ── Voice profile (Exclusive SARA Female Voice) ────────────────────────
+        if "voice" in clean:
+            return IntentResponse(action="switch_voice", query="default", speech_response="I operate exclusively with my dedicated SARA female voice profile.")
 
         # ── Audio controls ─────────────────────────────────────────────────────
         m_vol = re.search(r"(?:set\s+)?volume\s+(?:to\s+)?(\d+)", clean)

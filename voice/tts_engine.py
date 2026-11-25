@@ -30,31 +30,15 @@ class EdgeTTSEngine(BaseTTSEngine):
     Runs synthesis in a background thread to avoid blocking the GUI.
     """
 
-    # 3 Distinct Voice Profiles as requested by user
+    # Exclusive Voice Profile: SARA Female
     VOICE_PROFILES = {
         "default": {
             "key": "default",
-            "name": "Default (SARA Female)",
+            "name": "SARA (Female)",
             "voice": "en-US-AvaNeural",
             "rate": "+0%",
             "pitch": "+0Hz",
-            "description": "Standard clear, intelligent SARA female voice"
-        },
-        "jarvis": {
-            "key": "jarvis",
-            "name": "JARVIS (British Male AI)",
-            "voice": "en-GB-RyanNeural",
-            "rate": "+0%",
-            "pitch": "-4Hz",
-            "description": "Deep, sophisticated British male AI inspired by Iron Man's JARVIS"
-        },
-        "cute": {
-            "key": "cute",
-            "name": "Cute Female (Soft & Upbeat)",
-            "voice": "en-US-AnaNeural",
-            "rate": "+6%",
-            "pitch": "+12Hz",
-            "description": "Sweet, expressive, bright female voice"
+            "description": "Standard clear, intelligent, and focused SARA female voice"
         }
     }
 
@@ -67,7 +51,7 @@ class EdgeTTSEngine(BaseTTSEngine):
         self._is_speaking = False
         self._stop_event = threading.Event()
         self._speak_thread: Optional[threading.Thread] = None
-        logger.info(f"EdgeTTSEngine initialized with profile '{self._current_profile_key}' ({self._voice})")
+        logger.info(f"EdgeTTSEngine initialized with exclusive SARA female voice ({self._voice})")
 
     @property
     def current_voice(self) -> str:
@@ -77,27 +61,19 @@ class EdgeTTSEngine(BaseTTSEngine):
     def current_profile(self) -> str:
         return self._current_profile_key
 
-    def set_profile(self, profile_key: str) -> bool:
-        """Switch voice profile by key: 'default', 'jarvis', or 'cute'."""
-        key = profile_key.lower().strip()
-        if key in self.VOICE_PROFILES:
-            profile = self.VOICE_PROFILES[key]
-            self._current_profile_key = key
-            self._voice = profile["voice"]
-            self._rate = profile["rate"]
-            self._pitch = profile["pitch"]
-            logger.info(f"TTS voice profile switched to: {profile['name']} ({self._voice})")
-            return True
-        logger.warning(f"Unknown voice profile: '{profile_key}'. Available: {list(self.VOICE_PROFILES.keys())}")
-        return False
+    def set_profile(self, profile_key: str = "default") -> bool:
+        """SARA operates exclusively with her dedicated female voice."""
+        self._current_profile_key = "default"
+        profile = self.VOICE_PROFILES["default"]
+        self._voice = profile["voice"]
+        self._rate = profile["rate"]
+        self._pitch = profile["pitch"]
+        logger.info(f"Using exclusive SARA female voice: {self._voice}")
+        return True
 
     def set_voice(self, voice_key: str) -> bool:
-        """Switch voice by profile key or raw voice name."""
-        if voice_key in self.VOICE_PROFILES:
-            return self.set_profile(voice_key)
-        # Fallback for raw voice strings
-        self._voice = voice_key
-        return True
+        """Ensure voice remains SARA female voice."""
+        return self.set_profile("default")
 
     def speak(
         self,
