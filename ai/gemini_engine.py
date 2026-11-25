@@ -53,22 +53,14 @@ class GeminiAIEngine(BaseAIEngine):
         return []
 
     def is_available(self) -> bool:
-        """Check if Gemini API key or local key rotator is configured and available."""
+        """Check if Gemini API key is configured. Does NOT make network calls (fast check)."""
         key = self._api_key or config.ai.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY", "")
         if key and len(key) > 10:
             return True
-        # Check if local rotator proxy has keys
+        # Check if local rotator proxy has keys configured on disk (no network call)
         proxy_keys = self._get_proxy_keys()
         if proxy_keys:
             return True
-        # Check if rotator server is running on localhost:8000
-        if HAS_REQUESTS:
-            try:
-                res = requests.get("http://127.0.0.1:8000/status", headers={"x-proxy-admin": "changeme_local_only"}, timeout=1)
-                if res.status_code in [200, 401]:
-                    return True
-            except Exception:
-                pass
         return False
 
     def generate_chat_response(

@@ -249,6 +249,10 @@ class SARAEngine:
 
         # 4. Handle general chat separately (uses Gemini AI if available for intelligent free chat)
         if intent.action == "general_chat":
+            # Fire a "thinking..." placeholder immediately so chat shows something
+            if self._on_response:
+                self._on_response("...", "")
+
             if self._gemini.is_available():
                 logger.info("Routing chat response through Gemini AI...")
                 response_text = self._gemini.generate_chat_response(user_input, history)

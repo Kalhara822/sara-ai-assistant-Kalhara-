@@ -22,6 +22,13 @@ except ImportError as _e:
     HAS_EDGE_TTS = False
     logger.warning(f"TTS dependency missing ({_e}). Install: pip install edge-tts sounddevice soundfile")
 
+try:
+    import pyttsx3
+    HAS_PYTTSX3 = True
+except ImportError:
+    HAS_PYTTSX3 = False
+    logger.warning("pyttsx3 not installed. Offline TTS fallback unavailable.")
+
 
 class EdgeTTSEngine(BaseTTSEngine):
     """
@@ -83,12 +90,9 @@ class EdgeTTSEngine(BaseTTSEngine):
     ) -> None:
         """
         Speak text asynchronously in a background thread.
+        Tries Edge TTS (online, high quality) first; falls back to pyttsx3 (offline) on failure.
         Calls on_start() before playback and on_complete() after.
         """
-        if not HAS_EDGE_TTS:
-            logger.error("edge-tts not installed. Cannot synthesize speech.")
-            return
-
         if self._is_speaking:
             self.stop()
 
@@ -98,14 +102,38 @@ class EdgeTTSEngine(BaseTTSEngine):
             self._is_speaking = True
             if on_start:
                 on_start()
-            try:
-                asyncio.run(self._synthesize_and_play(text))
-            except Exception as e:
-                logger.error(f"TTS synthesis error: {e}", exc_info=True)
-            finally:
-                self._is_speaking = False
-                if on_complete:
-                    on_complete()
+            spoken = False
+            # --- Attempt 1: Edge TTS (online, premium quality) ---
+            if HAS_EDGE_TTS:
+                try:
+                    asyncio.run(self._synthesize_and_play(text))
+                    spoken = True
+                except Exception as e:
+                    logger.warning(f"Edge TTS failed (network issue?): {e}. Falling back to offline TTS.")
+            # --- Attempt 2: pyttsx3 offline fallback ---
+            if not spoken:
+                if HAS_PYTTSX3:
+                    try:
+                        engine = pyttsx3.init()
+                        engine.setProperty("rate", 175)
+                        # Try to pick a female voice
+                        voices = engine.getProperty("voices")
+                        for v in voices:
+                            if "female" in v.name.lower() or "zira" in v.name.lower() or "hazel" in v.name.lower():
+                                engine.setProperty("voice", v.id)
+                                break
+                        engine.say(text)
+                        engine.runAndWait()
+                        engine.stop()
+                        spoken = True
+                        logger.info("Spoke via pyttsx3 offline fallback.")
+                    except Exception as e:
+                        logger.error(f"pyttsx3 offline TTS also failed: {e}", exc_info=True)
+                else:
+                    logger.error("No TTS engine available (edge-tts offline, pyttsx3 not installed).")
+            self._is_speaking = False
+            if on_complete:
+                on_complete()
 
         self._speak_thread = threading.Thread(target=_run, name="TTS-Worker", daemon=True)
         self._speak_thread.start()
